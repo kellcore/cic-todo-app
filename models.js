@@ -35,11 +35,13 @@ module.exports = () => {
             creationTime: Sequelize.DATE,
             completionTime: Sequelize.DATE,
             dueTime: Sequelize.DATE,
-            userId: Sequelize.INTEGER.UNSIGNED
+            //userId: Sequelize.INTEGER.UNSIGNED
+            userName: Sequelize.STRING
         }),
         init: () => {
             db.sync();
             // uses db object to sync with database and create tables in Postgres with Sequelize
+            // { force: true }
         }
     };
 };

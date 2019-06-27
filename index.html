@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> CiC | ToDo </title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- imports Bootstrap CSS -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <!-- Imports jQuery UI CSS -->
+</head>
+
+<body>
+    <div class="container">
+
+        <form class="card" style="margin-top: 20px;" onsubmit="newTask(event)">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="name"> What's your name? </label>
+                            <input class="form-control" id="name">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="task"> What would you like to do? </label>
+                            <input class="form-control" id="task">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="dueDate"> When would you like to do it? </label>
+                            <input class="form-control" id="dueDate" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <button type="submit" class="btn btn-primary">Enter</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row" style="margin-top: 20px;">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th> Task </th>
+                            <th> Created By </th>
+                            <th> Due Date </th>
+                            <th> Time Completed </th>
+                            <th> Edit Task </th>
+                            <th> Delete Task </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td> Finish the ToDo App </td>
+                            <td> Kelly C. </td>
+                            <td> 6/27/19 </td>
+                            <td> </td>
+                            <td> <button type="button" class="btn btn-success"> Edit </button> </td>
+                            <td> <button type="button" class="btn btn-danger"> Delete </button> </td>
+                        </tr>
+                    </tbody>
+                    <!-- Create dummy data to test if table works -->
+                </table>
+            </div>
+            <!-- Structure here is table -> table head (thead) -> table row (tr) -> table head (th) or  table data (td) // table body (tbody) -> table row (tr) -> table data (td)-->
+        </div>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- Imports jQuery 3 -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+<!-- Imports Bootstrap JS -->
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- Imports jQuery UI -->
+<script>
+    $(() => {
+        $("#dueDate").datepicker();
+    });
+    function newTask(evt) {
+        evt.preventDefault();
+        const name = $("#name").val();
+        const task = $("#task").val();
+        const dueDate = $("#dueDate").val();
+        // references IDs placed on input in form -> functions grab the value of what's typed in those and stores it in a JS variable
+
+        fetch("http://127.0.0.1:8080/task", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: task,
+                dueTime: dueDate,
+                userName: name
+            })
+            // converts data into JSON using stringify
+            // lets body-parser know to put the data into req.body
+        }).then(rawJSON => {
+            return rawJSON.json();
+            // takes raw JSON object returned from promise and parses it into JS
+        }).then((data) => {
+            console.log("Fetch works!");
+        });
+        // using fetch to create an API call connecting our server with our front end
+
+        fetch("http://127.0.0.1:8080/task", {
+            // using the same endpoint with different requests
+            method: "GET"
+        }).then(rawJSON => {
+            return rawJSON.json();
+            // takes raw JSON object returned from promise and parses it into JS
+        }).then((data) => {
+            console.log(data);
+        })
+
+
+        //console.log(name, task, dueDate);
+        // connecting input from front end to back end using JavaScript
+    };
+</script>
+<!-- syntax means don't run this code until jQuery's loaded -> otherwise JS will load before it's ready to run -> similar to a document.ready -->
+<!-- #dueDate references ID of dueDate input on form -->
+<!-- newTask(event) is called on clicking the submit button and prints "New task created!" to the console -->
+
+</html>
