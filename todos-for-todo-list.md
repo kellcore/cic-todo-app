@@ -1,5 +1,4 @@
 Steps to Create a Full Stack To-Do App
-6/27/2019
 ---------------------------
 
 &nbsp;
