@@ -17,13 +17,13 @@ Steps to Create a Full Stack To-Do App
 ~~Create API calls to connect front and back end~~
 
 &nbsp;
-Write JS for front end to display and post new items from server
+~~Write JS for front end to display and post new items from server~~
 
 &nbsp;
-Create timestamps for created/completed/due
+~~Create timestamps for created/completed/due~~
 
 &nbsp;
-Build ability to edit a task/mark as completed
+Build ability to edit a task/mark as completed/delete it
 
 &nbsp;
 ~~Install external library to handle dates because nobody's got time for that~~

@@ -39,7 +39,7 @@ module.exports = () => {
             userName: Sequelize.STRING
         }),
         init: () => {
-            db.sync();
+            db.sync({});
             // uses db object to sync with database and create tables in Postgres with Sequelize
             // { force: true }
         }

@@ -54,16 +54,17 @@
                             <th> Task </th>
                             <th> Created By </th>
                             <th> Due Date </th>
-                            <th> Time Completed </th>
+                            <th> Completed </th>
                             <th> Edit Task </th>
                             <th> Delete Task </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                         <tr>
+                            <!-- dummy data to test table feature -->
                             <td> Finish the ToDo App </td>
                             <td> Kelly C. </td>
-                            <td> 6/27/19 </td>
+                            <td> 6/28/19 </td>
                             <td> </td>
                             <td> <button type="button" class="btn btn-success"> Edit </button> </td>
                             <td> <button type="button" class="btn btn-danger"> Delete </button> </td>
@@ -84,6 +85,8 @@
 <!-- Imports Bootstrap JS -->
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <!-- Imports jQuery UI -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"> </script>
+<!-- Imports MomentJS -->I
 <script>
     $(() => {
         $("#dueDate").datepicker();
@@ -94,6 +97,11 @@
         const task = $("#task").val();
         const dueDate = $("#dueDate").val();
         // references IDs placed on input in form -> functions grab the value of what's typed in those and stores it in a JS variable
+
+        $("#name").val("");
+        $("#task").val("");
+        $("#dueDate").val("");
+        // replaces text values in boxes with empty strings and resets date
 
         fetch("http://127.0.0.1:8080/task", {
             method: "POST",
@@ -111,7 +119,9 @@
             return rawJSON.json();
             // takes raw JSON object returned from promise and parses it into JS
         }).then((data) => {
-            console.log("Fetch works!");
+            //console.log("Fetch works!");
+            console.log(data);
+            updateTasks(data);
         });
         // using fetch to create an API call connecting our server with our front end
 
@@ -121,13 +131,37 @@
         }).then(rawJSON => {
             return rawJSON.json();
             // takes raw JSON object returned from promise and parses it into JS
-        }).then((data) => {
-            console.log(data);
-        })
+        }).then(data => {
+            updateTasks(data);
+            // console.log(data); -> testing to see if our tasks make the journey from front end to server and back
+            //console.log(updateContent);
+            //console.log(moment.version);
+        });
 
 
         //console.log(name, task, dueDate);
         // connecting input from front end to back end using JavaScript
+
+        function updateTasks(data) {
+            let updateContent = "";
+            // this is outside the for loop because we want to keep adding content to our table -> if we put it inside, it would be replaced each time new content was entered
+            for (const tasks of data.tasks) {
+                console.log(tasks);
+                // tasks.completionTime = new Date(); -> used to test completion time with dummy data
+                updateContent += `
+                            <tr>
+                            <td> ${tasks.name} </td>
+                            <td> ${tasks.userName} </td>
+                            <td> ${moment(tasks.dueTime).format("MMM D YY")} </td>
+                            <td> ${tasks.completionTime ? moment(tasks.completionTime).fromNow() : ""} </td>
+                        <td> <button type="button" class="btn btn-success"> Edit </button> </td>
+                        <td> <button type="button" class="btn btn-danger"> Delete </button> </td>
+                            </tr>
+                `
+            };
+            $("#tableBody").html(updateContent);
+            // set id of tableBody on <tbody> in HTML and used jQuery's html property to display the updated content from the server on the front page by calling our updateContent function
+        };
     };
 </script>
 <!-- syntax means don't run this code until jQuery's loaded -> otherwise JS will load before it's ready to run -> similar to a document.ready -->

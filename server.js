@@ -12,6 +12,8 @@ const models = require("./models")();
 // ./ in front of the name references a file within the same folder
 models.init();
 // Runs init function inside of models.js and syncs database -> this creates our tables with Sequelize
+const moment = require("moment");
+
 
 
 /* app.get("/", (req, res) => {
@@ -39,8 +41,11 @@ app.post("/task", async (req, res) => {
         userName: req.body.userName
     });
 
-    res.send({ status: "adequate" });
+    res.send({ tasks: await models.Tasks.findAll() });
     // nothing isn't valid JSON but an empty object is!
+    // status: "adequate"
+    // change res.send to tasks to send the tasks from the database back instead of the test status
+    // creates new task and returns it with the previously created ones
 });
 // creates API endpoint to fetch to on index.html
 
