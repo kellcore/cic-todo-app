@@ -23,7 +23,7 @@ Steps to Create a Full Stack To-Do App
 ~~Create timestamps for created/completed/due~~
 
 &nbsp;
-Build ability to edit a task/mark as completed/delete it
+~~Build ability to edit a task/mark as completed/delete it~~
 
 &nbsp;
 ~~Install external library to handle dates because nobody's got time for that~~

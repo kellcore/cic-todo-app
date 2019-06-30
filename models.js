@@ -35,10 +35,17 @@ module.exports = () => {
             creationTime: Sequelize.DATE,
             completionTime: Sequelize.DATE,
             dueTime: Sequelize.DATE,
-            //userId: Sequelize.INTEGER.UNSIGNED
-            userName: Sequelize.STRING
+            userId: Sequelize.INTEGER.UNSIGNED
+            //userName: Sequelize.STRING
         }),
-        init: () => {
+        init: function () {
+            // had to switch to traditional function instead of arrow function to gain access to greater scope in the models
+            this.Tasks.belongsTo(this.Users, {
+                foreignKey: "userId",
+                primaryKey: "id"
+            });
+            // this ties the tasks with the users table using the foreign key in Tasks of userId and the primary key in Users of id
+            // this is doing a join under the hood on users and tasks!
             db.sync({});
             // uses db object to sync with database and create tables in Postgres with Sequelize
             // { force: true }

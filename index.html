@@ -22,23 +22,29 @@
                     <div class="col">
                         <div class="form-group">
                             <label for="name"> What's your name? </label>
-                            <input class="form-control" id="name">
+                            <select class="form-control" id="selectUser">
+                                <option> User 1 </option>
+                                <option> User 2 </option>
+                            </select>
                         </div>
                     </div>
                     <div class="col">
                         <div class="form-group">
                             <label for="task"> What would you like to do? </label>
-                            <input class="form-control" id="task">
+                            <input class="form-control" id="task" />
                         </div>
                     </div>
                     <div class="col">
                         <div class="form-group">
                             <label for="dueDate"> When would you like to do it? </label>
-                            <input class="form-control" id="dueDate" type="text">
+                            <input class="form-control" id="dueDate" type="text" />
                         </div>
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col text-center">
+                        <button class="btn btn-primary" onclick="createUser(event)"> Create User </button>
+                    </div>
                     <div class="col text-center">
                         <button type="submit" class="btn btn-primary">Enter</button>
                     </div>
@@ -91,14 +97,16 @@
     $(() => {
         $("#dueDate").datepicker();
     });
-    function newTask(evt) {
-        evt.preventDefault();
-        const name = $("#name").val();
+
+    function newTask(event) {
+        event.preventDefault();
+        const userId = $("#selectUser").val();
         const task = $("#task").val();
         const dueDate = $("#dueDate").val();
         // references IDs placed on input in form -> functions grab the value of what's typed in those and stores it in a JS variable
+        //console.log(name);
 
-        $("#name").val("");
+        //$("#name").val("");
         $("#task").val("");
         $("#dueDate").val("");
         // replaces text values in boxes with empty strings and resets date
@@ -111,7 +119,7 @@
             body: JSON.stringify({
                 name: task,
                 dueTime: dueDate,
-                userName: name
+                userId
             })
             // converts data into JSON using stringify
             // lets body-parser know to put the data into req.body
@@ -125,43 +133,145 @@
         });
         // using fetch to create an API call connecting our server with our front end
 
+        //console.log(name, task, dueDate);
+        // connecting input from front end to back end using JavaScript
+    };
+
+    fetch("http://127.0.0.1:8080/task", {
+        // using the same endpoint with different requests
+        method: "GET"
+    }).then(rawJSON => {
+        return rawJSON.json();
+        // takes raw JSON object returned from promise and parses it into JS
+    }).then(data => {
+        console.log(data);
+        updateTasks(data);
+        // console.log(data); -> testing to see if our tasks make the journey from front end to server and back
+        //console.log(updateContent);
+        //console.log(moment.version);
+    });
+
+    fetch("http://127.0.0.1:8080/user", {
+        method: "GET"
+    }).then(rawJSON => {
+        return rawJSON.json();
+    }).then(data => {
+        console.log(data);
+        addNewUser(data);
+    });
+
+    function addNewUser(data) {
+        let updateTasks = "";
+        for (const user of data.users) {
+            updateTasks += `<option value="${user.id}">${user.name}</option>`;
+            // we want to use ids under the hood because the computer has an easier time with numbers, but we want to show names on the front end for the users because people like that
+        }
+        $("#selectUser").html(updateTasks);
+    };
+
+    function updateTasks(data) {
+        console.log(data);
+        let updateContent = "";
+        // this is outside the for loop because we want to keep adding content to our table -> if we put it inside, it would be replaced each time new content was entered
+        for (const tasks of data.tasks) {
+            //console.log(tasks);
+            // tasks.completionTime = new Date(); -> used to test completion time with dummy data
+            updateContent += `
+                            <tr>
+                            <td> ${tasks.name} </td>
+                            <td> ${tasks.User.name} </td>
+                            <td> ${moment(tasks.dueTime).format("MMM D YY")} </td>
+                            <td> ${tasks.completionTime ? moment(tasks.completionTime).fromNow() : `<button class='btn btn-success' onclick='completeTask(${tasks.id})'> Done! </button>`} </td>
+                        <td> <button type="button" class="btn btn-primary" onclick="editTask(${tasks.id})"> Edit </button> </td>
+                        <td> <button type="button" class="btn btn-danger" onclick="deleteTask(${tasks.id})"> Delete </button> </td>
+                            </tr>
+                `
+        };
+        $("#tableBody").html(updateContent);
+        // set id of tableBody on <tbody> in HTML and used jQuery's html property to display the updated content from the server on the front page by calling our updateContent function
+    };
+
+    function completeTask(id) {
         fetch("http://127.0.0.1:8080/task", {
-            // using the same endpoint with different requests
-            method: "GET"
+            method: "PUT",
+            // using put because we're editing data that already exists as opposed to posting new data
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id
+            })
+            // converts data into JSON using stringify
+            // lets body-parser know to put the data into req.body
         }).then(rawJSON => {
             return rawJSON.json();
             // takes raw JSON object returned from promise and parses it into JS
-        }).then(data => {
+        }).then((data) => {
+            //console.log("Fetch works!");
+            console.log(data);
             updateTasks(data);
-            // console.log(data); -> testing to see if our tasks make the journey from front end to server and back
-            //console.log(updateContent);
-            //console.log(moment.version);
         });
+        // using fetch to create an API call connecting our server with our front end
+    };
 
+    function editTask(id) {
+        fetch("http://127.0.0.1:8080/task/edit", {
+            method: "PUT",
+            // using put because we're editing data that already exists as opposed to posting new data
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id,
+                name: window.prompt("How would you like to change this task?")
+            })
+        }).then(rawJSON => {
+            return rawJSON.json();
+        }).then((data) => {
+            console.log(data);
+            updateTasks(data);
+        });
+    };
 
-        //console.log(name, task, dueDate);
-        // connecting input from front end to back end using JavaScript
+    function deleteTask(id) {
+        fetch("http://127.0.0.1:8080/task", {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id
+            })
+            // converts data into JSON using stringify
+            // lets body-parser know to put the data into req.body
+        }).then(rawJSON => {
+            return rawJSON.json();
+            // takes raw JSON object returned from promise and parses it into JS
+        }).then((data) => {
+            //console.log("Fetch works!");
+            console.log(data);
+            updateTasks(data);
+        });
+    };
 
-        function updateTasks(data) {
-            let updateContent = "";
-            // this is outside the for loop because we want to keep adding content to our table -> if we put it inside, it would be replaced each time new content was entered
-            for (const tasks of data.tasks) {
-                console.log(tasks);
-                // tasks.completionTime = new Date(); -> used to test completion time with dummy data
-                updateContent += `
-                            <tr>
-                            <td> ${tasks.name} </td>
-                            <td> ${tasks.userName} </td>
-                            <td> ${moment(tasks.dueTime).format("MMM D YY")} </td>
-                            <td> ${tasks.completionTime ? moment(tasks.completionTime).fromNow() : ""} </td>
-                        <td> <button type="button" class="btn btn-success"> Edit </button> </td>
-                        <td> <button type="button" class="btn btn-danger"> Delete </button> </td>
-                            </tr>
-                `
-            };
-            $("#tableBody").html(updateContent);
-            // set id of tableBody on <tbody> in HTML and used jQuery's html property to display the updated content from the server on the front page by calling our updateContent function
-        };
+    function createUser(event) {
+        event.preventDefault();
+        fetch("http://127.0.0.1:8080/user", {
+            method: "POST",
+            // using post because we're creating a new user
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: window.prompt("Enter your username:")
+            })
+        }).then(rawJSON => {
+            return rawJSON.json();
+        }).then((data) => {
+            //console.log(data);
+            addNewUser(data);
+            updateTasks(data);
+        });
     };
 </script>
 <!-- syntax means don't run this code until jQuery's loaded -> otherwise JS will load before it's ready to run -> similar to a document.ready -->
